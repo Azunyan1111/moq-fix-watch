@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0](https://github.com/moq-dev/moq/compare/moq-mux-v0.5.3...moq-mux-v0.6.0) - 2026-06-05
+
+### Added
+
+- *(moq-mux)* add VP8 and VP9 codec modules (import + fMP4 export) ([#1625](https://github.com/moq-dev/moq/pull/1625))
+
 ## [0.5.3](https://github.com/moq-dev/moq/compare/moq-mux-v0.5.2...moq-mux-v0.5.3) - 2026-06-03
 
 ### Other

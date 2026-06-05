@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4](https://github.com/moq-dev/moq/compare/libmoq-v0.3.3...libmoq-v0.3.4) - 2026-06-05
+
+### Other
+
+- cross-compile all x86_64-darwin release artifacts on Apple Silicon ([#1623](https://github.com/moq-dev/moq/pull/1623))
+
 ## [0.3.3](https://github.com/moq-dev/moq/compare/libmoq-v0.3.2...libmoq-v0.3.3) - 2026-06-03
 
 ### Other
