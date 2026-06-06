@@ -467,6 +467,33 @@ describe("setLatency", () => {
 		const output2 = read(buffer, 128, 1);
 		expect(output2[0].length).toBe(20);
 	});
+
+	it("should re-stall when increased latency exceeds buffered samples", () => {
+		const buffer = create({ rate: 1000, channels: 1, capacity: 200, latency: 50 });
+
+		insert(buffer, 0, 50, { channels: 1, value: 1.0 });
+		expect(buffer.stalled).toBe(false);
+
+		read(buffer, 20, 1);
+		expect(buffer.length).toBe(30);
+
+		buffer.setLatency(80);
+		expect(buffer.stalled).toBe(true);
+
+		insert(buffer, 50, 50, { channels: 1, value: 2.0 });
+		expect(buffer.length).toBe(80);
+		expect(buffer.stalled).toBe(false);
+	});
+
+	it("should un-stall when reduced latency is already buffered", () => {
+		const buffer = create({ rate: 1000, channels: 1, capacity: 100, latency: 100 });
+
+		insert(buffer, 0, 50, { channels: 1, value: 1.0 });
+		expect(buffer.stalled).toBe(true);
+
+		buffer.setLatency(50);
+		expect(buffer.stalled).toBe(false);
+	});
 });
 
 describe("stalled getter", () => {

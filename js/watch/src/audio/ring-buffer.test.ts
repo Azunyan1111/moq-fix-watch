@@ -419,7 +419,7 @@ describe("resize", () => {
 
 		expect(buffer.capacity).toBe(50);
 		expect(buffer.length).toBe(50); // Truncated to new capacity
-		expect(buffer.stalled).toBe(true); // Should trigger stall
+		expect(buffer.stalled).toBe(false);
 	});
 
 	it("should be a no-op when capacity is unchanged", () => {
@@ -458,7 +458,7 @@ describe("resize", () => {
 		buffer.resize(50 as Time.Milli);
 		expect(buffer.capacity).toBe(50);
 		expect(buffer.length).toBe(50);
-		expect(buffer.stalled).toBe(true);
+		expect(buffer.stalled).toBe(false);
 	});
 
 	it("should handle resize when buffer is empty", () => {
@@ -495,7 +495,22 @@ describe("resize", () => {
 		expect(buffer.stalled).toBe(false);
 	});
 
-	it("should exit stall and read new data after resize", () => {
+	it("should re-stall when growing beyond preserved samples", () => {
+		const buffer = new AudioRingBuffer({ rate: 1000, channels: 1, latency: 100 as Time.Milli });
+
+		write(buffer, 0 as Time.Milli, 100, { channels: 1, value: 1.0 });
+		expect(buffer.stalled).toBe(false);
+
+		read(buffer, 60, 1);
+		expect(buffer.length).toBe(40);
+
+		buffer.resize(80 as Time.Milli);
+		expect(buffer.capacity).toBe(80);
+		expect(buffer.length).toBe(40);
+		expect(buffer.stalled).toBe(true);
+	});
+
+	it("should keep playing when resize preserves enough samples", () => {
 		const buffer = new AudioRingBuffer({ rate: 1000, channels: 1, latency: 100 as Time.Milli });
 
 		// Write some initial data
@@ -503,10 +518,9 @@ describe("resize", () => {
 
 		// Resize to smaller buffer
 		buffer.resize(50 as Time.Milli);
-		expect(buffer.stalled).toBe(true);
+		expect(buffer.stalled).toBe(false);
 
-		// Write new data to fill the buffer and exit stall
-		// The overflow will discard preserved samples and advance readIndex
+		// The overflow will discard preserved samples and advance readIndex.
 		write(buffer, 50 as Time.Milli, 50, { channels: 1, value: 2.0 });
 		expect(buffer.stalled).toBe(false);
 

@@ -68,10 +68,10 @@ export class AudioRingBuffer {
 			}
 		}
 
-		// Update state for the new buffer, only stall if empty.
+		// Re-enter stalled mode when preserved audio is below the new target latency.
 		this.#buffer = newBuffer;
 		this.#readIndex = this.#writeIndex - samplesToKeep;
-		if (samplesToKeep === 0) this.#stalled = true;
+		this.#stalled = samplesToKeep < newCapacity;
 	}
 
 	write(timestamp: Time.Micro, data: Float32Array[]): void {

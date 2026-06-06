@@ -54,6 +54,19 @@ function casAdvance(arr: Int32Array, idx: number, candidate: number): number {
 	}
 }
 
+function refreshStalled(control: Int32Array): void {
+	const latency = Atomics.load(control, LATENCY);
+	if (latency <= 0) {
+		Atomics.store(control, STALLED, 0);
+		return;
+	}
+
+	const read = Atomics.load(control, READ);
+	const write = Atomics.load(control, WRITE);
+	const buffered = (write - read) | 0;
+	Atomics.store(control, STALLED, buffered >= latency ? 0 : 1);
+}
+
 export class SharedRingBuffer {
 	readonly channels: number;
 	readonly capacity: number;
@@ -186,6 +199,7 @@ export class SharedRingBuffer {
 	/** Update the target latency in samples. */
 	setLatency(samples: number): void {
 		Atomics.store(this.#control, LATENCY, samples);
+		refreshStalled(this.#control);
 	}
 
 	/**
